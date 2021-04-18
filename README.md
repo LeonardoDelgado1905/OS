@@ -6,3 +6,5 @@
 4. Interfaz de usuario
 5. Pipe (mkfifo) http://es.tldp.org/Universitarios/seminario-1.html
 6. Makefile 
+
+	

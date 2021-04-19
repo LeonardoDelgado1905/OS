@@ -41,17 +41,21 @@ void constructor(struct router myrouter, char sourceid[], char dstid[], int hod,
 	myrouter.standard_deviation_travel_time = standard_deviation_travel_time;
 }
 FILE *binaryFile;
+FILE *binaryFileR;
 void write_router(long unsigned int position, struct router myrouter){
+	
 	long unsigned int curPos=sizeof(struct router)*position;
 	fseek(binaryFile,curPos,SEEK_SET);
 	fwrite(&myrouter,sizeof(struct router),1,binaryFile);
-	return ;
+	return;
 }
 struct router read_router(long unsigned int position){
+	// binaryFile = fopen("linkedlist.bin", "rb");
 	struct router value;
 	long unsigned int curPos=sizeof(struct router)*position;
-	fseek(binaryFile,curPos,SEEK_SET);
-	fread(&value,sizeof(struct router),1,binaryFile);
+	fseek(binaryFileR,curPos,SEEK_SET);
+	fread(&value,sizeof(struct router),1,binaryFileR);
+	// printf("*******%s\n", value.sourceid);
 	return value;
 }
 
@@ -61,14 +65,18 @@ int hash(char sourceid[]){
 int n;
 void add(int *heads, int *tails, int curPos, struct router myRouter){
 
-	int idx = hash(myRouter.sourceid)*sizeof(int);
-	
+	int idx = hash(myRouter.sourceid);
 	if(*(heads + idx) == -1){ //Es el primero que encuentro
-		
+		// printf("acabs de ingresar uno que no está: %s\n", myRouter.sourceid);
 		*(heads + idx) = *(tails + idx) = curPos;
+		write_router(curPos, myRouter);
 		// printf("como soy nuevo: %s mi head es: %d\n", myRouter.sourceid, *(heads + idx));
 	}else{
+		// printf("voy en el router #%d\n", curPos);
 		struct router tail_router = read_router(*(tails+idx));
+		// printf("Leyendo existente source: %s\n", tail_router.sourceid);
+		// printf("Leyendo existente destino: %s\n", tail_router.dstid);
+		// printf("El último con ese sourcid está en. %d\n", *(tails+idx));
 		tail_router.next = curPos;
 		write_router(*(tails+idx),tail_router);
 		write_router(curPos, myRouter);
@@ -99,30 +107,35 @@ char* getfield(char* line, int num)
 int *heads;
 int *tails;
 int main(){
- 	binaryFile = fopen("linkedlist.bin", "wb+");
-	char buffer[35] = "999    ";
-	printf("%d", hash(buffer));
+ 	printf("%d", sizeof(struct router));
 	n = 1160;
 	//int *heads;		// Inicializa un puntero al valor donde inicia el arreglo de heads
-	heads = (int*)malloc(n*sizeof(int)); 	// Libera el espacio para guardar n estucturas router	
-	tails = (int*)malloc(n*sizeof(int));
+	heads = malloc(n*sizeof(int)); 	// Libera el espacio para guardar n estucturas router	
+	tails = malloc(n*sizeof(int));
 
 	memset(heads, -1, n*sizeof(int));
 	memset(tails, -1, n*sizeof(int));
 
-
+	
+	binaryFile = fopen("linkedlist.bin", "wb");
+	binaryFileR = fopen("linkedlist.bin", "rb");
 	
 	FILE *cadastral_data;
 	cadastral_data = fopen("bogota-cadastral.csv", "r");
 	
 	struct router myrouter;
 	
-	char line[1024];	
+	char line[1024];
 	fgets(line, 1024, cadastral_data);
 	int m= 0;
+	int cota = 100000;
     while (fgets(line, 1024, cadastral_data))//Lee cada csv de el archivo
     {	
-		printf("linea: %s", line);
+		// if(m < 6){
+		// 	m++;
+		// 	continue;
+		// } 
+		// printf("linea: %s", line);
 		// printf("linea1----%s", line);
 		char* tmp = strdup(line);
 		// printf("%d\n", 1);
@@ -141,16 +154,23 @@ int main(){
 		// printf("%d\n", 5);
 		tmp = strdup(line);
 		myrouter.standard_deviation_travel_time = atof(getfield(tmp, 4));
-		// printf("%s %d\n", myrouter.sourceid, m);
-		
+		if((m % 1000000) == 0){
+			printf("%d, m: %d\n", m*sizeof(struct router), m);
+		}
 	 	add(heads, tails, m++, myrouter);		
-		
         free(tmp);
      }
+
+	FILE *hash_table;
+	hash_table = fopen("hash_table.bin", "wb+");
+
+	
 	free(heads);
 	free(tails);
 	
+
 	fclose(binaryFile);
+	fclose(binaryFileR);
 	fclose(cadastral_data);
 
 	/**/
@@ -175,6 +195,10 @@ int main(){
 	// //	printf("%d\n", buffer[i]);	
 	// //}
 	// fclose(lectura);
+
+
+
+	
 	return 0;
 }
 // bool matchRouters(struct router *aux, char goal_sourceid[], char goal_dstid[], int goal_hod){

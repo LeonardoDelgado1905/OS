@@ -16,30 +16,6 @@ struct router{
 	int next; //4
 };
 
-struct linked_list{
-	struct router *header;
-	struct router *tail;
-	int size;
-};
-
-/*
-
-void add(struct linked_list list, struct router *node){
-	if(list.header == NULL){
-		list.header = node;
-		list.tail = node;
-	}else{
-		list.tail->next = node;
-		list.tail = node;
-	}
-}
-*/
-void constructor(struct router myrouter, char sourceid[], char dstid[], int hod, float mean_travel_time, float standard_deviation_travel_time){
-	memcpy(myrouter.sourceid, sourceid, sizeof(char[35]));
-	memcpy(myrouter.dstid, dstid, sizeof(char[35]));
-	myrouter.mean_travel_time = mean_travel_time;
-	myrouter.standard_deviation_travel_time = standard_deviation_travel_time;
-}
 FILE *binaryFile;
 FILE *binaryFileR;
 void write_router(long unsigned int position, struct router myrouter){
@@ -55,7 +31,7 @@ struct router read_router(long unsigned int position){
 	long unsigned int curPos=sizeof(struct router)*position;
 	fseek(binaryFileR,curPos,SEEK_SET);
 	fread(&value,sizeof(struct router),1,binaryFileR);
-	// printf("*******%s\n", value.sourceid);
+	// printf("*******%s\n", value.sourceid);r
 	return value;
 }
 
@@ -155,7 +131,7 @@ int main(){
 		tmp = strdup(line);
 		myrouter.standard_deviation_travel_time = atof(getfield(tmp, 4));
 		if((m % 1000000) == 0){
-			printf("%d, m: %d\n", m*sizeof(struct router), m);
+			printf("Datos Cargados: +%d\n", m);
 		}
 	 	add(heads, tails, m++, myrouter);		
         free(tmp);
@@ -164,13 +140,17 @@ int main(){
 	FILE *hash_table;
 	hash_table = fopen("hash_table.bin", "wb+");
 
-	
+	for(int i = 0; i < n; ++i){
+		printf("hash %d", *(heads + i));
+	}
+	fwrite(heads,sizeof(int),n,hash_table);
 	free(heads);
 	free(tails);
 	
 
 	fclose(binaryFile);
 	fclose(binaryFileR);
+	fclose(hash_table);
 	fclose(cadastral_data);
 
 	/**/

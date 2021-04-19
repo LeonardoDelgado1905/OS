@@ -41,24 +41,24 @@ int read_hash(long unsigned int position){
 }
 int main(){
     hash_table = fopen("hash_table.bin", "rb");
+    binaryFileR = fopen("linkedlist.bin", "rb");
     char sourceid[35] = "1114";
 	char dstid[35] = "694";
     int hod = 19;
-    binaryFileR = fopen("linkedlist.bin", "rb");
-    
+   
     int find = read_hash(hash(sourceid));
-    printf("el primero aparece en: %d", find);
+    printf("el primero aparece en: %d\n", find);
     struct router Guia = read_router(find);
- 	
-     while(Guia.next != -1 || (Guia.dstid!=dstid || Guia.hod != hod || Guia == -1)){
-        Guia = read_router(Guia.next);
-
+    printf("source: %d\n", Guia.sourceid);
+ 	/*
+     while(Guia.next != -1 || (Guia.dstid!=dstid || Guia.hod != hod)){
+        Guia = read_router(Guia.next);    
     }
     if(Guia.next == -1){
         printf("-1");
     }
     else{
         printf("Tiempo promedio de viaje: %10.2f", Guia.mean_travel_time);
-    }
+    }*/
 	return 0;
 }

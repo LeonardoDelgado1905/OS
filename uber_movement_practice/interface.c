@@ -14,9 +14,15 @@ int val_error(int returned, int error_value, char *msg){
     return 0;
 }
 
+struct data{
+    char data[35];
+    float data2;
+    int data3;
+};
+
 struct mail{
     int id;
-    char data[35];
+    struct data data;
 };
 
 int main(){
@@ -24,34 +30,33 @@ int main(){
     int descr, descr2, r, hod;
     char sourceId[35], dtsId[35];
     struct mail msg, msg2; 
+
     printf("Bienvenido\n");
     do{
         printf("\n1. Ingresar origen\n2. Ingresar destino\n3. Ingresar hora\n4. Buscar tiempo de viaje medio\n5. Salir\n");
         scanf("%d", &option);
+        
+        do{		/* intentar la conexion */
+            descr = open ("tuberia", O_WRONLY);
+            if (descr == -1) sleep (1);
+        }while (descr == -1);
+
         switch (option){
         case 1:
             printf("Ingrese ID del origen: ");
             scanf("%s", sourceId);
 
-            do{		/* intentar la conexion */
-                descr = open ("tuberia", O_WRONLY);
-                if (descr == -1) sleep (1);
-            }while (descr == -1);
-            msg.id = 1;
-            memcpy(msg.data, &sourceId, sizeof(sourceId));
+            msg.id = 1;     
+            memcpy(msg.data.data, &sourceId, sizeof(sourceId));
             r = write (descr, &msg, sizeof(struct mail));
 
             break;
         case 2:
             printf("Ingrese ID del destino: ");
             scanf("%s", dtsId);
-
-            do{		/* intentar la conexion */
-                descr = open ("tuberia", O_WRONLY);
-                if (descr == -1) sleep (1);
-            }while (descr == -1);
+            
             msg.id = 2;
-            memcpy(msg.data, &dtsId, sizeof(sourceId));
+            memcpy(msg.data.data, &dtsId, sizeof(sourceId));
             r = write (descr, &msg, sizeof(struct mail));
 
             break;
@@ -59,45 +64,37 @@ int main(){
             printf("Ingrese hora del día: ");
             scanf("%d", &hod);
 
-            do{		/* intentar la conexion */
-                descr = open ("tuberia", O_WRONLY);
-                if (descr == -1) sleep (1);
-            }while (descr == -1);
             msg.id = 3;
-            memcpy(msg.data, &hod, sizeof(sourceId));
+            msg.data.data3 = hod;
             r = write (descr, &msg, sizeof(struct mail));
 
             break;
         case 4:
-            do{		/* intentar la conexion */
-                descr = open ("tuberia", O_WRONLY);
-                if (descr == -1) sleep (1);
-            }while (descr == -1);
+
             msg.id = 4;
             r = write (descr, &msg, sizeof(struct mail));
 
-
-            unlink ("tuberia2");
+            
+            //unlink ("tuberia2");
             sleep(1);
             r = mkfifo ("tuberia2", 0);
             val_error(r, -1, "mkfifo error");
             r = chmod("tuberia2", 0777);  //777 en octal
             val_error(r, -1, "chmod error");
-            descr = open("tuberia2", O_RDONLY);
-            val_error(descr, 0, "open error");
-            r = read (descr, &msg2, sizeof(struct mail));
+            descr2 = open("tuberia2", O_RDONLY);
+            val_error(descr2, 0, "open error");
+            r = read (descr2, &msg2, sizeof(struct mail));
             val_error(r, 0, "read error");
             if(msg2.id==-1){
                 printf("Ingrese todos los datos antes de hacer la busqueda.\n");
+            }else if(msg2.id==0){
+                printf("Tiempo de viaje medio: NAN\n");
             }else{
-                printf("Tiempo de viaje medio: \n");
+                printf("Tiempo de viaje medio: %f\n", msg2.data.data2);
             }
             break;
         case 5:
-            do{		/* intentar la conexion */
-                descr = open ("tuberia", O_WRONLY);
-                if (descr == -1) sleep (1);
-            }while (descr == -1);
+
             msg.id = 5;
             r = write (descr, &msg, sizeof(struct mail));
             break;

@@ -18,6 +18,7 @@ struct data{
     char data[35];
     float data2;
     int data3;
+    double executionTime;
 };
 
 struct mail{
@@ -32,14 +33,14 @@ int main(){
     struct mail msg, msg2; 
 
     printf("Bienvenido\n");
+    do{		/* intentar la conexion */
+        descr = open ("tuberia", O_WRONLY);
+        if (descr == -1) sleep (1);
+    }while (descr == -1);
+    
     do{
         printf("\n1. Ingresar origen\n2. Ingresar destino\n3. Ingresar hora\n4. Buscar tiempo de viaje medio\n5. Salir\n");
         scanf("%d", &option);
-        
-        do{		/* intentar la conexion */
-            descr = open ("tuberia", O_WRONLY);
-            if (descr == -1) sleep (1);
-        }while (descr == -1);
 
         switch (option){
         case 1:
@@ -89,8 +90,10 @@ int main(){
                 printf("Ingrese todos los datos antes de hacer la busqueda.\n");
             }else if(msg2.id==0){
                 printf("Tiempo de viaje medio: NAN\n");
+                printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }else{
                 printf("Tiempo de viaje medio: %f\n", msg2.data.data2);
+                printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }
             break;
         case 5:
@@ -102,5 +105,6 @@ int main(){
             printf("Ingrese una opción valida por favor.");
             break;
         }
+        printf("mi opcion es %d", option);
     }while(option!=5);
 }

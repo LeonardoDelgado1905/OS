@@ -10,20 +10,21 @@
 int main(){
     hash_table = fopen("hash_table.bin", "rb");
     binaryFileR = fopen("linkedlist.bin", "rb");
-    char sourceid[35] = "1127";
-	char dstid[35] = "879";
-    int hod = 23;
+    char sourceid[35] = "1014";
+	char dstid[35] = "998";
+    int hod = 15;
    
     int find = read_hash(hash(sourceid));
-
     struct router Guia;
     Guia.next = find;
-
+    int a = 0;
     while(Guia.next != -1 && (strcmp(Guia.dstid, dstid)!=0 || Guia.hod != hod)){
+        //01printf("%s\n", Guia.sourceid);
+        //printf("%s\n", Guia.dstid);
         Guia = read_router(Guia.next);   
     }
     if(Guia.next == -1 && (strcmp(Guia.dstid, dstid)!=0 || Guia.hod != hod)){
-        printf("-1");
+        printf("-1\n");
     }
     else{
         printf("Source: %s\n", Guia.sourceid);
@@ -31,6 +32,7 @@ int main(){
         printf("Hora del día: %d\n", Guia.hod);
         printf("Tiempo promedio de viaje: %.2f\n", Guia.mean_travel_time);
     }
+    
     fclose(binaryFileR);
     fclose(hash_table);
 	return 0;

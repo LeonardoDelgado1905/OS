@@ -14,7 +14,6 @@ struct router{
 };
 
 void write_router(long unsigned int position, struct router myrouter){
-	
 	long unsigned int curPos=sizeof(struct router)*position;
 	fseek(binaryFile,curPos,SEEK_SET);
 	fwrite(&myrouter,sizeof(struct router),1,binaryFile);
@@ -34,14 +33,20 @@ int hash(char sourceid[]){
 void add(int *heads, int *tails, int curPos, struct router myRouter){
 
 	int idx = hash(myRouter.sourceid);
+	if(strcmp(myRouter.sourceid,"1014") == 0 && idx != 1014){
+		printf("idx: %d, curPos: %d\n",idx, curPos);
+	}
+
 	if(*(heads + idx) == -1){ //Es el primero que encuentro
 		*(heads + idx) = *(tails + idx) = curPos;
 		write_router(curPos, myRouter);
 	}else{
+		//memcpy(tail_router.sourceid, myRouter.sourceid, sizeof(sourceid));
+		myRouter.next = -1;
+		write_router(curPos, myRouter);
 		struct router tail_router = read_router(*(tails+idx));
 		tail_router.next = curPos;
 		write_router(*(tails+idx),tail_router);
-		write_router(curPos, myRouter);
 		*(tails+idx) = curPos;
 	}
 }

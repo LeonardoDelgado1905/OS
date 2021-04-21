@@ -18,6 +18,9 @@ int main(){
 	memset(heads, -1, NUM_ORIGINS*sizeof(int));
 	memset(tails, -1, NUM_ORIGINS*sizeof(int));
 	
+	
+
+
 	binaryFile = fopen("linkedlist.bin", "wb");
 	binaryFileR = fopen("linkedlist.bin", "rb");
 	
@@ -35,7 +38,9 @@ int main(){
 		
 		char* tmp = strdup(line);
 		char* sourceid = getfield(tmp, 0);
+
 		memcpy(myrouter.sourceid, sourceid, sizeof(sourceid));
+		
 		tmp = strdup(line);
 		char* dstid = getfield(tmp, 1);
 		memcpy(myrouter.dstid, dstid, sizeof(dstid));

@@ -51,7 +51,7 @@ int main(){
 	 	add(heads, tails, m++, myrouter);		
         free(tmp);
     }
-	printf("Total datos Cargados: +%d\n", m);
+	printf("Total datos Cargados: %d\n", m);
 	FILE *hash_table;
 	hash_table = fopen("hash_table.bin", "wb+");
 

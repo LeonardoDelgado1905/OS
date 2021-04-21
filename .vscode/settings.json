@@ -2,6 +2,19 @@
     "files.associations": {
         "unistd.h": "c",
         "stdlib.h": "c",
-        "tuple": "c"
+        "tuple": "c",
+        "stdbool.h": "c",
+        "*.tcc": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "regex": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "variant": "c"
     }
 }

@@ -1,20 +1,15 @@
-all: clear search
+all: ejecucion
+
+reindex: clear create ejecucion
 create:
 	gcc createbinary.c -o create
 	./create
-	
-search: create 
-	gcc search.c -o search
-	./search
-
-clear:
-	rm ./search
-	rm ./create
-	rm ./reader
-	rm ./interface
-
-ejecucion:
+ejecucion: create
 	gcc reader.c -o reader 
-	gcc interface.c -o interface
-	./reader & ./interface
+	gcc p1-odProgram.c -o p1-odProgram
+	./reader & ./p1-odProgram
+clear:
+	rm -f ./create
+	rm -f ./reader
+	rm -f ./p1-odProgram
 	

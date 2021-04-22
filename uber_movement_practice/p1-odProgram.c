@@ -103,6 +103,11 @@ int main(){
                 printf("Tiempo de viaje medio: %.2f\n", msg2.data.data2);
                 // printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }
+            fflush(stdout);
+            getchar();
+            printf("Presione enter para continuar");
+            getchar();
+            system("clear");
             break;
         case 5:
             msg.id = 5;

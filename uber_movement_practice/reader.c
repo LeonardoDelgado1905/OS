@@ -58,7 +58,7 @@ int main (){
     
 
     do{
-        unlink ("tuberia2");
+        
         
         r = read (descr, &msg, sizeof(struct mail));
         val_error(r, 0, "read error");
@@ -72,7 +72,7 @@ int main (){
             fflush(stdout);
             searcher.hod = msg.data.data3;
         }else if(msg.id==4){
-
+            unlink ("tuberia2");
             do{		/* intentar la conexion */
                 descr2 = open ("tuberia2", O_WRONLY);
                 if (descr2 == -1) sleep (1);
@@ -81,6 +81,7 @@ int main (){
             if(searcher.hod==-1 || searcher.sourceid=="-1" || searcher.dstid=="-1"){
                 msg2.id = -1;
                 r = write (descr2, &msg2, sizeof(struct mail));
+                
             }else{
                 gettimeofday(&start, NULL);
                 hash_table = fopen("hash_table.bin", "rb");
@@ -108,10 +109,11 @@ int main (){
                 fclose(binaryFileR);
                 fclose(hash_table);
             }
-
+            close (descr2);
         }
     }while(msg.id!=5);
     close (descr);
+    
     unlink ("tuberia2");
     unlink ("tuberia");   
 }

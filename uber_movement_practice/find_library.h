@@ -33,9 +33,6 @@ int hash(char sourceid[]){
 void add(int *heads, int *tails, int curPos, struct router myRouter){
 
 	int idx = hash(myRouter.sourceid);
-	if(strcmp(myRouter.sourceid,"1014") == 0 && idx != 1014){
-		printf("idx: %d, curPos: %d\n",idx, curPos);
-	}
 
 	if(*(heads + idx) == -1){ //Es el primero que encuentro
 		*(heads + idx) = *(tails + idx) = curPos;

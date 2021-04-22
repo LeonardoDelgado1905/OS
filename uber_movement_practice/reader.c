@@ -46,8 +46,8 @@ int main (){
     searcher.hod = -1;
     int descr, descr2, i, r;
     struct mail msg, msg2; 
+
     unlink ("tuberia"); 
-    
     sleep(1);
     r = mkfifo ("tuberia", 0);
     val_error(r, -1, "mkfifo error");
@@ -59,16 +59,14 @@ int main (){
 
     do{
         unlink ("tuberia2");
+
         r = read (descr, &msg, sizeof(struct mail));
         val_error(r, 0, "read error");
         if(msg.id==1){
-            printf("El source Id es: %s \n", msg.data.data); fflush(stdout);
             memcpy(searcher.sourceid, msg.data.data, sizeof(msg.data.data));
         }else if(msg.id==2){
-            printf("El dst Id es: %s \n", msg.data.data); fflush(stdout);
             memcpy(searcher.dstid, msg.data.data, sizeof(msg.data.data));
         }else if(msg.id==3){
-            printf("La hora es: %d \n", msg.data.data3); fflush(stdout);
             searcher.hod = msg.data.data3;
         }else if(msg.id==4){
 

@@ -40,43 +40,50 @@ int main(){
     
     do{
         printf("\n1. Ingresar origen\n2. Ingresar destino\n3. Ingresar hora\n4. Buscar tiempo de viaje medio\n5. Salir\n");
-        scanf("%d", &option);
+        scanf("%d", &option);   // Meno de opciones para la práctica
 
         switch (option){
         case 1:
             printf("Ingrese ID del origen: ");
             scanf("%s", sourceId);
 
-            msg.id = 1;     
-            memcpy(msg.data.data, &sourceId, sizeof(sourceId));
-            r = write (descr, &msg, sizeof(struct mail));
-
+            if(atoi(sourceId)>0 && atoi(sourceId)<1161){
+                msg.id = 1;     
+                memcpy(msg.data.data, &sourceId, sizeof(sourceId));     // Envio del sourceid de la busqueda por la tuberia al lector
+                r = write (descr, &msg, sizeof(struct mail));
+            }else{
+                printf("Por favor ingrese un ID de origen valido.\n");
+            }
             break;
         case 2:
             printf("Ingrese ID del destino: ");
             scanf("%s", dtsId);
             
-            msg.id = 2;
-            memcpy(msg.data.data, &dtsId, sizeof(sourceId));
-            r = write (descr, &msg, sizeof(struct mail));
+            if(atoi(dtsId)>0 && atoi(dtsId)<1161){
+                msg.id = 2;     
+                memcpy(msg.data.data, &dtsId, sizeof(dtsId));     // Envio del dstId de la busqueda por la tuberia al lector
+                r = write (descr, &msg, sizeof(struct mail));
+            }else{
+                printf("Por favor ingrese un ID de destino valido.\n");
+            }
 
             break;
         case 3:
             printf("Ingrese hora del día: ");
             scanf("%d", &hod);
 
-            msg.id = 3;
-            msg.data.data3 = hod;
-            r = write (descr, &msg, sizeof(struct mail));
-
+            if(hod>=0 && hod<=23){
+                msg.id = 3;
+                msg.data.data3 = hod;
+                r = write (descr, &msg, sizeof(struct mail));   // Envio de la hota del día de la busqueda por la tuberia al lector
+            }else{
+                printf("Por favor ingrese una hotra del día valida.\n");
+            }
             break;
         case 4:
-
             msg.id = 4;
             r = write (descr, &msg, sizeof(struct mail));
 
-            
-            //unlink ("tuberia2");
             sleep(1);
             r = mkfifo ("tuberia2", 0);
             val_error(r, -1, "mkfifo error");
@@ -86,6 +93,7 @@ int main(){
             val_error(descr2, 0, "open error");
             r = read (descr2, &msg2, sizeof(struct mail));
             val_error(r, 0, "read error");
+
             if(msg2.id==-1){
                 printf("Ingrese todos los datos antes de hacer la busqueda.\n");
             }else if(msg2.id==0){
@@ -97,7 +105,6 @@ int main(){
             }
             break;
         case 5:
-
             msg.id = 5;
             r = write (descr, &msg, sizeof(struct mail));
             break;

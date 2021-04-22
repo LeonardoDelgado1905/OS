@@ -59,14 +59,17 @@ int main (){
 
     do{
         unlink ("tuberia2");
-
+        
         r = read (descr, &msg, sizeof(struct mail));
         val_error(r, 0, "read error");
         if(msg.id==1){
+            fflush(stdout);
             memcpy(searcher.sourceid, msg.data.data, sizeof(msg.data.data));
         }else if(msg.id==2){
+            fflush(stdout);
             memcpy(searcher.dstid, msg.data.data, sizeof(msg.data.data));
         }else if(msg.id==3){
+            fflush(stdout);
             searcher.hod = msg.data.data3;
         }else if(msg.id==4){
 

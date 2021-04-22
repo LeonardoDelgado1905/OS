@@ -98,10 +98,10 @@ int main(){
                 printf("Ingrese todos los datos antes de hacer la busqueda.\n");
             }else if(msg2.id==0){
                 printf("Tiempo de viaje medio: NA \n");
-                printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
+                // printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }else{
                 printf("Tiempo de viaje medio: %.2f\n", msg2.data.data2);
-                printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
+                // printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }
             break;
         case 5:

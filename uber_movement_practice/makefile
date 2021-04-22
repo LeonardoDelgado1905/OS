@@ -10,3 +10,11 @@ search: create
 clear:
 	rm ./search
 	rm ./create
+	rm ./reader
+	rm ./interface
+
+ejecucion:
+	gcc reader.c -o reader 
+	gcc interface.c -o interface
+	./reader & ./interface
+	

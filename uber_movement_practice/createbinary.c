@@ -18,7 +18,6 @@ int main(){
 	memset(heads, -1, NUM_ORIGINS*sizeof(int));
 	memset(tails, -1, NUM_ORIGINS*sizeof(int));
 	
-	
 
 
 	binaryFile = fopen("linkedlist.bin", "wb");

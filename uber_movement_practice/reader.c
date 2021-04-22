@@ -109,7 +109,6 @@ int main (){
             }
 
         }
-        printf("%s %s %d\n", searcher.sourceid, searcher.dstid, searcher.hod);
     }while(msg.id!=5);
     close (descr);
     unlink ("tuberia2");

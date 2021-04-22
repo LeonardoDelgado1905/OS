@@ -89,10 +89,10 @@ int main(){
             if(msg2.id==-1){
                 printf("Ingrese todos los datos antes de hacer la busqueda.\n");
             }else if(msg2.id==0){
-                printf("Tiempo de viaje medio: NAN\n");
+                printf("Tiempo de viaje medio: NA \n");
                 printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }else{
-                printf("Tiempo de viaje medio: %f\n", msg2.data.data2);
+                printf("Tiempo de viaje medio: %.2f\n", msg2.data.data2);
                 printf("La ejecución del programa tomó: %.16g \n", msg2.data.executionTime);
             }
             break;
@@ -105,6 +105,5 @@ int main(){
             printf("Ingrese una opción valida por favor.");
             break;
         }
-        printf("mi opcion es %d", option);
     }while(option!=5);
 }

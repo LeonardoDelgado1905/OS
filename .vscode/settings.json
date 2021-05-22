@@ -15,6 +15,7 @@
         "regex": "c",
         "type_traits": "c",
         "utility": "c",
-        "variant": "c"
+        "variant": "c",
+        "string.h": "c"
     }
 }

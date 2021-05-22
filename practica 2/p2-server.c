@@ -7,8 +7,16 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include <stdbool.h>
 #include "find_library.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <strings.h>
+
+
+#define PORT 3535
+#define BACKLOG 32
 
 struct searcher{
 	char sourceid[35];  // 35
@@ -29,77 +37,76 @@ int main (){
     struct timeval start, end;
     double StopWatch;
 
-    struct searcher searcher;
-    int descr, descr2, i, r;
-    struct mail msg, msg2; 
+    struct searcher query;
 
-    unlink ("tuberia"); 
-    sleep(1);
-    r = mkfifo ("tuberia", 0);
-    val_error(r, -1, "mkfifo error");
-    r = chmod("tuberia", 0777);  //777 en octal
-    val_error(r, -1, "chmod error");
-    descr = open("tuberia", O_RDONLY);
-    val_error(descr, 0, "open error");
+    int serverfd, clientfd, r, opt = 1;
+    struct sockaddr_in server, client;
+    socklen_t tamano;
+
+        
+    serverfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(serverfd < 0){
+        perror("\n-->Error en socket():");
+        exit(-1);
+    }
     
+    server.sin_family = AF_INET;
+    server.sin_port = htons(PORT);
+    server.sin_addr.s_addr = INADDR_ANY;
+    bzero(server.sin_zero, 8); 
+    
+    setsockopt(serverfd,SOL_SOCKET,SO_REUSEADDR,(const char *)&opt,sizeof(int));
 
+    r = bind(serverfd, (struct sockaddr *)&server, sizeof(struct sockaddr));
+    if(r < 0){
+        perror("\n-->Error en bind(): ");
+        exit(-1);
+    }
+    
+    r = listen(serverfd, BACKLOG);
+    if(r < 0){
+        perror("\n-->Error en Listen(): ");
+        exit(-1);
+    }
+    
+    clientfd = accept(serverfd, (struct sockaddr *)&client, &tamano);
+    if(clientfd < 0)
+    {
+        perror("\n-->Error en accept: ");
+        exit(-1);
+    }
+    
+    float result;
     do{
-        
-        
-        r = read (descr, &msg, sizeof(struct mail));
-        val_error(r, 0, "read error");
-        if(msg.id==1){
-            fflush(stdout);
-            memcpy(searcher.sourceid, msg.data.data, sizeof(msg.data.data));
-        }else if(msg.id==2){
-            fflush(stdout);
-            memcpy(searcher.dstid, msg.data.data, sizeof(msg.data.data));
-        }else if(msg.id==3){
-            fflush(stdout);
-            searcher.hod = msg.data.data3;
-        }else if(msg.id==4){
-            unlink ("tuberia2");
-            do{		/* intentar la conexion */
-                descr2 = open ("tuberia2", O_WRONLY);
-                if (descr2 == -1) sleep (1);
-            }while (descr2 == -1);
-
-            if(searcher.hod==-1 || searcher.sourceid=="-1" || searcher.dstid=="-1"){
-                msg2.id = -1;
-                r = write (descr2, &msg2, sizeof(struct mail));
-                
-            }else{
-                gettimeofday(&start, NULL);
-                hash_table = fopen("hash_table.bin", "rb");
-                binaryFileR = fopen("linkedlist.bin", "rb");
-                int find = read_hash(hash(searcher.sourceid));
-                struct router Guia;
-                Guia.next = find;
-
-                while(Guia.next != -1 && (strcmp(Guia.dstid, searcher.dstid)!=0 || Guia.hod != searcher.hod)){
-                    Guia = read_router(Guia.next);   
-                    
-                }
-                gettimeofday(&end, NULL);
-                StopWatch = (double)(end.tv_sec + (double)end.tv_usec/1000000) -
-                    (double)(start.tv_sec + (double)start.tv_usec/1000000);
-                msg2.data.executionTime = StopWatch*1000.0;
-                if(Guia.next == -1 && (strcmp(Guia.dstid, searcher.dstid)!=0 || Guia.hod != searcher.hod)){
-                    msg2.id = 0;
-                    r = write (descr2, &msg2, sizeof(struct mail));
-                }else{
-                    msg2.id = 1;
-                    msg2.data.data2 = Guia.mean_travel_time;
-                    r = write (descr2, &msg2, sizeof(struct mail));
-                }
-                fclose(binaryFileR);
-                fclose(hash_table);
-            }
-            close (descr2);
+        r = recv(clientfd, (void *)&query, sizeof(query), 0);
+        if(r < 0){
+            perror("\n-->Error en recv(): ");
+            exit(-1);
         }
-    }while(msg.id!=5);
-    close (descr);
-    
-    unlink ("tuberia2");
-    unlink ("tuberia");   
+        
+        hash_table = fopen("hash_table.bin", "rb");
+        binaryFileR = fopen("linkedlist.bin", "rb");
+        int find = read_hash(hash(query.sourceid));
+        struct router Guia;
+        Guia.next = find;
+
+        while(Guia.next != -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
+            Guia = read_router(Guia.next);   
+        }
+        
+        if(Guia.next == -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
+            result = -1;      
+        }else{
+            result = Guia.mean_travel_time;
+        }
+        r = send(clientfd, &result, sizeof(float), 0);
+        if(r < 0){
+            perror("\n-->Error en send(): ");
+            exit(-1);
+        } 
+        
+        fclose(binaryFileR);
+        fclose(hash_table);
+    }while(query.action!=false);
+    close(clientfd);    
 }

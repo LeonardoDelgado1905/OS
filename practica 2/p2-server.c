@@ -33,6 +33,26 @@ int val_error(int returned, int error_value, char *msg){
     return 0;
 }
 
+int search(struct searcher query){
+    hash_table = fopen("hash_table.bin", "rb");
+    binaryFileR = fopen("linkedlist.bin", "rb");
+    int find = read_hash(hash(query.sourceid));
+    struct router Guia;
+    Guia.next = find;
+
+    while(Guia.next != -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
+        Guia = read_router(Guia.next);   
+    }
+    fclose(binaryFileR);
+    fclose(hash_table);
+    
+    if(Guia.next == -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
+        return -1;      
+    }else{
+        return Guia.mean_travel_time;
+    }
+}
+
 int main (){
     struct timeval start, end;
     double StopWatch;
@@ -40,15 +60,13 @@ int main (){
     struct searcher query;
 
     int serverfd, clientfd, r, opt = 1;
+    float result;
     struct sockaddr_in server, client;
     socklen_t tamano;
 
         
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(serverfd < 0){
-        perror("\n-->Error en socket():");
-        exit(-1);
-    }
+    val_error(serverfd, -1, "\n-->Error en socket():");
     
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
@@ -58,55 +76,22 @@ int main (){
     setsockopt(serverfd,SOL_SOCKET,SO_REUSEADDR,(const char *)&opt,sizeof(int));
 
     r = bind(serverfd, (struct sockaddr *)&server, sizeof(struct sockaddr));
-    if(r < 0){
-        perror("\n-->Error en bind(): ");
-        exit(-1);
-    }
+    val_error(r, -1, "\n-->Error en bind(): ");
     
     r = listen(serverfd, BACKLOG);
-    if(r < 0){
-        perror("\n-->Error en Listen(): ");
-        exit(-1);
-    }
+    val_error(r, -1, "\n-->Error en Listen(): ");
     
     clientfd = accept(serverfd, (struct sockaddr *)&client, &tamano);
-    if(clientfd < 0)
-    {
-        perror("\n-->Error en accept: ");
-        exit(-1);
-    }
+    val_error(r, -1, "\n-->Error en accept: ");
     
-    float result;
-    do{
+    while(true){
         r = recv(clientfd, (void *)&query, sizeof(query), 0);
-        if(r < 0){
-            perror("\n-->Error en recv(): ");
-            exit(-1);
-        }
-        
-        hash_table = fopen("hash_table.bin", "rb");
-        binaryFileR = fopen("linkedlist.bin", "rb");
-        int find = read_hash(hash(query.sourceid));
-        struct router Guia;
-        Guia.next = find;
+        val_error(r, -1, "\n-->Error en recv(): ");
 
-        while(Guia.next != -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
-            Guia = read_router(Guia.next);   
-        }
+        result = search(query);     
         
-        if(Guia.next == -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
-            result = -1;      
-        }else{
-            result = Guia.mean_travel_time;
-        }
         r = send(clientfd, &result, sizeof(float), 0);
-        if(r < 0){
-            perror("\n-->Error en send(): ");
-            exit(-1);
-        } 
-        
-        fclose(binaryFileR);
-        fclose(hash_table);
-    }while(query.action!=false);
+        val_error(r, -1, "\n-->Error en send(): ");
+    }
     close(clientfd);    
 }

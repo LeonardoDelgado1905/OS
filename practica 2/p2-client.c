@@ -51,8 +51,7 @@ int main(int argc, char *argv[]){
         perror("\n-->Error en connect(): ");
         exit(-1);
     }
-    r = recv()
-
+    
     struct searcher query;
     query.action = true;
     char error[2] = "-1";

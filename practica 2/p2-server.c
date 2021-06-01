@@ -14,13 +14,15 @@
 #include <arpa/inet.h>
 #include <strings.h>
 #include <pthread.h>
-
+#include <arpa/inet.h>
+#include <time.h>
 
 #define PORT 3535
 #define BACKLOG 32
 #define MAX_CLIENTES 32
 bool busy_socket[MAX_CLIENTES];
 int num_busy_sockets;
+int last_client_id;
 
 
 struct searcher{
@@ -62,12 +64,17 @@ float search(struct searcher query){
 struct datos{
     int client_id;
     int clientfd;
-}
+    char ip[INET_ADDRSTRLEN];
+};
+
 void *attend_client(void *datos){
     struct datos *datosH;
     datosH = datos;
-    int client_id = datos->client_id;
+    int client_id = datosH->client_id;
     int clientfd = datosH->clientfd;
+    char ip[INET_ADDRSTRLEN];
+    memcpy(ip, datosH->ip, sizeof(datosH->ip));
+    
     struct searcher query;
     int r;
     while(true){
@@ -80,10 +87,20 @@ void *attend_client(void *datos){
         
         r = send(clientfd, &result, sizeof(float), 0);
         val_error(r, -1, "\n-->Error en send(): ");
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+        if(result!=-1) printf("[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [%f - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, result, query.sourceid, query.dstid);
+        else printf("[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [NA - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, query.sourceid, query.dstid);
     }
     close(clientfd);
     busy_socket[client_id] = false;
     num_busy_sockets--;
+}
+
+void getFreeId(){    
+    while(busy_socket[last_client_id]){
+        last_client_id = (last_client_id+1) % MAX_CLIENTES;
+    }    
 }
 
 int main (){
@@ -98,7 +115,7 @@ int main (){
     socklen_t tamano;
     pthread_t hilo[MAX_CLIENTES];
 
-        
+    
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
     val_error(serverfd, -1, "\n-->Error en socket():");
     
@@ -114,21 +131,27 @@ int main (){
     
     r = listen(serverfd, BACKLOG);
     val_error(r, -1, "\n-->Error en Listen(): ");
-    
-    int client_id = 0;
+    int client_id;
     struct datos data;
-    while(true){       
+    while(true){
         if(num_busy_sockets < MAX_CLIENTES){
-            clientfd[client_id] = accept(serverfd, (struct sockaddr *)&client, &tamano);            
+            getFreeId();
+            client_id = last_client_id;            
+            clientfd[client_id] = accept(serverfd, (struct sockaddr *)&client, &tamano);          
+
+            struct in_addr clientIp = client.sin_addr;
+            char ipStr[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &clientIp, ipStr, INET_ADDRSTRLEN);
+            
+            
             val_error(r, -1, "\n-->Error en accept: ");
+            memcpy(data.ip, ipStr, sizeof(ipStr));
             data.client_id = client_id;
             data.clientfd = clientfd[client_id];
             busy_socket[client_id] = true;
             num_busy_sockets++;
             r = pthread_create(&hilo[client_id],NULL,(void *)attend_client,(void *)&data);
-            do{
-                client_id = (++client_id) % MAX_CLIENTES;
-            }while(busy_socket[client_id]);
+            
         }
     }
 }

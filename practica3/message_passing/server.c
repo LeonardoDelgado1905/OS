@@ -1,36 +1,29 @@
-#include <stdlib.h>
-#include <fcntl.h>
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdbool.h>
-#include <sys/time.h>
-#include "find_library.h"
+#include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <strings.h>
-
+#include <unistd.h>
 
 #define PORT 3535
+#define BACKLOG 2
 
-
-int val_error(int returned, int error_value, char *msg){
-    if(returned <= error_value){
-        perror(msg);
-        exit(EXIT_FAILURE);
-    }
-    return 0;
-}
-
-int main (){
-    struct timeval start, end;
-    double StopWatch;
-
-    struct searcher query;
+/*
+#include <netinet/in.h>
+struct sockaddr_in {
+    short            sin_family;   // e.g. AF_INET
+    unsigned short   sin_port;     // e.g. htons(3490)
+    struct in_addr   sin_addr;     // see struct in_addr, below
+    char             sin_zero[8];  // zero this if you want to
+};
+struct in_addr {
+    unsigned long s_addr;  // load with inet_aton()
+};
+*/
+int main(){
 
     int serverfd, clientfd, r, opt = 1;
     struct sockaddr_in server, client;
@@ -69,37 +62,11 @@ int main (){
         exit(-1);
     }
     
-    float result;
-    do{
-        r = recv(clientfd, (void *)&query, sizeof(query), 0);
-        if(r < 0){
-            perror("\n-->Error en recv(): ");
-            exit(-1);
-        }
-        
-        hash_table = fopen("hash_table.bin", "rb");
-        binaryFileR = fopen("linkedlist.bin", "rb");
-        int find = read_hash(hash(query.sourceid));
-        struct router Guia;
-        Guia.next = find;
-
-        while(Guia.next != -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
-            Guia = read_router(Guia.next);   
-        }
-        
-        if(Guia.next == -1 && (strcmp(Guia.dstid, query.dstid)!=0 || Guia.hod != query.hod)){
-            result = -1;      
-        }else{
-            result = Guia.mean_travel_time;
-        }
-        r = send(clientfd, &result, sizeof(float), 0);
-        if(r < 0){
-            perror("\n-->Error en send(): ");
-            exit(-1);
-        } 
-        
-        fclose(binaryFileR);
-        fclose(hash_table);
-    }while(query.action!=false);
-    close(clientfd);    
+    r = send(clientfd, "hola mundo", 10, 0);
+    if(r < 0){
+        perror("\n-->Error en send(): ");
+        exit(-1);
+    }    
+    close(clientfd);   
+    close(serverfd);    
 }

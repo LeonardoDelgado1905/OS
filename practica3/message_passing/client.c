@@ -1,25 +1,21 @@
-#include <stdlib.h>
-#include <fcntl.h>
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <stdbool.h>
+#include <unistd.h>
 
 #define PORT 3535
 
-int main(int argc, char *argv[]){
-    printf("Bienvenido\n");
-    int clientfd, r, hod, option = 0, id;
-    char package[35];
+
+int main(int argc, char *argv[])
+{
+    int clientfd, r;
     struct sockaddr_in client;
     struct hostent *he;
-    float result;
+    char buffer[32];
     
     clientfd = socket(AF_INET, SOCK_STREAM, 0);
     if(clientfd < 0){
@@ -36,8 +32,9 @@ int main(int argc, char *argv[]){
         perror("\n-->Error en connect(): ");
         exit(-1);
     }
-
-    r = send(clientfd, (const void *)&query, sizeof(query), 0);
+    r = recv(clientfd, buffer, 32, 0);
+    buffer[r] = 0;
+    printf("\nMensaje recibido: %s", buffer);  
     close(clientfd);
-    system("clear");
+
 }

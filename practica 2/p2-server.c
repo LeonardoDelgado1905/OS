@@ -70,7 +70,7 @@ struct datos{
     FILE *log;
 };
 
-void *attend_client(void *datos){
+void *attend_client(void *datos){    
     struct datos *datosH;
     datosH = datos;
     int client_id = datosH->client_id;
@@ -80,28 +80,28 @@ void *attend_client(void *datos){
     memcpy(ip, datosH->ip, sizeof(datosH->ip));
     
     struct searcher query;
+    struct searcher *q;
     int r;
     log = fopen("service.log", "a");
     fseek(log, 0, SEEK_END);
+    
     while(true){
-        r = recv(clientfd, (void *)&query, sizeof(query), 0);
-        //char *queryChar;
-        //r = recv(clientfd, (void char*)&queryChar, sizeof(query), 0);
-        //query = (searcher *)queryChar;
+        r = recv(clientfd, &query, sizeof(query), 0);        
         val_error(r, -1, "\n-->Error en recv(): ");
+        
+        fflush(stdout);
         if(!query.action){
             break;
         }
         float result = search(query);
         r = send(clientfd, &result, sizeof(float), 0);
+        
         val_error(r, -1, "\n-->Error en send(): ");
         time_t t = time(NULL);
         struct tm tm = *localtime(&t);
         if(result!=-1) fprintf(log, "[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [%f - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, result, query.sourceid, query.dstid);
         else fprintf(log, "[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [NA - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, query.sourceid, query.dstid);
         fseek(log, 0, SEEK_END);
-        //if(result!=-1) printf("[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [%f - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, result, query.sourceid, query.dstid);
-        //else printf("[Fecha %d%02d%02dT%02d%02d%02d] Cliente [%s] [NA - %s - %s]\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ip, query.sourceid, query.dstid);
     }
     fclose(log);
     close(clientfd);
@@ -145,6 +145,7 @@ int main (){
     val_error(r, -1, "\n-->Error en Listen(): ");
     int client_id;
     struct datos data;
+    
     while(true){
         if(num_busy_sockets < MAX_CLIENTES){
             getFreeId();
@@ -153,12 +154,7 @@ int main (){
 
             struct in_addr clientIp = client.sin_addr;
             char ipStr[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, &clientIp, ipStr, INET_ADDRSTRLEN);
-            /*
-            logfile = fopen("service.log", "r");
-            fseek(logfile, 0, SEEK_END);
-            printf("i'm in the %d\n", ftell(logfile));*/
-            
+            inet_ntop(AF_INET, &clientIp, ipStr, INET_ADDRSTRLEN);            
             val_error(r, -1, "\n-->Error en accept: ");
             memcpy(data.ip, ipStr, sizeof(ipStr));
             data.client_id = client_id;
@@ -166,6 +162,7 @@ int main (){
             data.log = logfile;
             busy_socket[client_id] = true;
             num_busy_sockets++;
+            
             r = pthread_create(&hilo[client_id],NULL,(void *)attend_client,(void *)&data);
             
         }

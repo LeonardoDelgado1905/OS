@@ -68,10 +68,11 @@ int main(int argc, char *argv[])
         }else{
             
             char* package = createMessage(10000);
-            int it = (size/10000)*iterations;
+            int it = (size/10000);
             begin = clock();
             for(int j=0; j<it; j++){
-                r = send(clientfd, (const void *)package, size, 0);
+                
+                r = send(clientfd, (const void *)package, 10000, 0);
                 if(r < 0){
                     perror("\n-->Error en send(): ");
                     exit(-1);

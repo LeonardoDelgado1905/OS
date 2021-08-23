@@ -12,12 +12,11 @@
 #include <time.h>
 
 #define PORT 3535
-#define BACKLOG 20
+#define BACKLOG 1000
 
 
-int main(int argc, char* argv[]){
-    int iterations = atoi(argv[1]);
-    int serverfd, clientfd, r, opt = 1;
+int main(){
+    int serverfd, clientfd, r, opt = 1, iterations;
     struct sockaddr_in server, client;
     socklen_t tamano;
     clock_t end;
@@ -58,7 +57,6 @@ int main(int argc, char* argv[]){
         r = recv(clientfd, (void *)&iterations, sizeof(int), 0);
     do{
         
-        printf("%ld ",size);
         char* message = (char*)malloc(size);
         r = recv(clientfd, message, size, 0);
         if(r < 0){

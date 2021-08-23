@@ -26,12 +26,12 @@ NonParentedPipe:
 MessagePassing:
 	gcc Message_passing/server.c -o Message_passing/server
 	gcc Message_passing/client.c -o Message_passing/client
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 1000 5
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 10000 5
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 100000 5
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 1000000 5
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 10000000 5
-	./Message_passing/server 5 & ./Message_passing/client 127.0.0.1 100000000 5
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 1000 5
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 10000 5
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 100000 1
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 1000000 1
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 10000000 1
+	./Message_passing/server & ./Message_passing/client 127.0.0.1 100000000 1
 
 SharedMemory:
 	@ gcc Share_memory/shmem.c -o Share_memory/schmem.o

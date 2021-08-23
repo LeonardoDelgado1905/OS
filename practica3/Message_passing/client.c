@@ -43,12 +43,14 @@ int main(int argc, char *argv[])
 
     char* received[8];
 
-    r = send(clientfd, (const void *)&size, sizeof(long int), 0);
+    
     if(size<64000){
+        r = send(clientfd, (const void *)&size, sizeof(long int), 0);
         r = send(clientfd, (const void *)&iterations, sizeof(int), 0);  
     }else{
-        
         int it = (size/10000)*iterations;
+        long int newSize = 10000;
+        r = send(clientfd, (const void *)&newSize, sizeof(long int), 0);
         r = send(clientfd, (const void *)&it, sizeof(int), 0);  
     }
     for (int i = 0; i < iterations; i++){
@@ -64,6 +66,7 @@ int main(int argc, char *argv[])
             end = clock();
             total_result += (double)(end - begin) / CLOCKS_PER_SEC;
         }else{
+            
             char* package = createMessage(10000);
             int it = (size/10000)*iterations;
             begin = clock();

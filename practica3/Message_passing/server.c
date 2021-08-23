@@ -7,28 +7,20 @@
 #include <arpa/inet.h>
 #include <strings.h>
 #include <unistd.h>
+#include <stdbool.h>
+#include "../utils.h"
+#include <time.h>
 
 #define PORT 3535
-#define BACKLOG 2
+#define BACKLOG 20
 
-/*
-#include <netinet/in.h>
-struct sockaddr_in {
-    short            sin_family;   // e.g. AF_INET
-    unsigned short   sin_port;     // e.g. htons(3490)
-    struct in_addr   sin_addr;     // see struct in_addr, below
-    char             sin_zero[8];  // zero this if you want to
-};
-struct in_addr {
-    unsigned long s_addr;  // load with inet_aton()
-};
-*/
-int main(){
 
+int main(int argc, char* argv[]){
+    int iterations = atoi(argv[1]);
     int serverfd, clientfd, r, opt = 1;
     struct sockaddr_in server, client;
     socklen_t tamano;
-
+    clock_t end;
         
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
     if(serverfd < 0){
@@ -36,7 +28,7 @@ int main(){
         exit(-1);
     }
     
-    server.sin_family = AF_INET;
+    server.sin_family = AF_INET; 
     server.sin_port = htons(PORT);
     server.sin_addr.s_addr = INADDR_ANY;
     bzero(server.sin_zero, 8); 
@@ -61,12 +53,25 @@ int main(){
         perror("\n-->Error en accept: ");
         exit(-1);
     }
+    long int size = 0;
+        r = recv(clientfd, (void *)&size, sizeof(long int), 0);
+        r = recv(clientfd, (void *)&iterations, sizeof(int), 0);
+    do{
+        
+        printf("%ld ",size);
+        char* message = (char*)malloc(size);
+        r = recv(clientfd, message, size, 0);
+        if(r < 0){
+            perror("\n-->Error en recv(): ");
+            exit(-1);
+        }
+        r = send(clientfd, "Recibido", 8, 0);
+        if(r < 0){
+            perror("\n-->Error en send(): ");
+            exit(-1);
+        } 
+        iterations--;
+    }while(iterations > 0);  
     
-    r = send(clientfd, "hola mundo", 10, 0);
-    if(r < 0){
-        perror("\n-->Error en send(): ");
-        exit(-1);
-    }    
     close(clientfd);   
-    close(serverfd);    
 }

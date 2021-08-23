@@ -11,7 +11,6 @@ int main(int argc, char* argv[]){
     long int size = atoi(argv[1]);
     int iterations = atoi(argv[2]);  
     int descr, descr2, i, r;
-    char buf[size];
     char a = '0';
     
     unlink ("tuberia");
@@ -24,12 +23,16 @@ int main(int argc, char* argv[]){
     val_error(descr, 0, "open error");
  
     for (i=0; i<iterations; i++){
+        printf("iteration reader: %i\n", i);
         if(size<64000){
+            char buf[size];
             r = read (descr, buf, size);
             val_error(r, 0, "read error");
         }else{
-            int auxSize = 10000;
+            int auxSize = 50000;
+            char buf[auxSize];
             for(int k = 0; k < size; k += auxSize){
+                printf("Recibido del paquete %i\n" , k/auxSize),
                 r = read (descr, buf, auxSize);
                 val_error(r, 0, "read error");
             }
@@ -41,7 +44,7 @@ int main(int argc, char* argv[]){
         }while (descr2 == -1);
         r = write (descr2, &a, sizeof(char));
         val_error(r, 0, "write error");
+        close (descr2);
     } 
     close (descr);
-    close (descr2);
 }

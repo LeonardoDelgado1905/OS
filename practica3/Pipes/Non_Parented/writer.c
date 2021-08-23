@@ -21,6 +21,7 @@ int main(int argc, char* argv[]){
     }while (descr == -1);
 
     for (i=0; i<iterations; i++){
+        printf("iteration writer: %i\n", i);
         if(size<64000){
             char* msg = createMessage(size);
             begin = clock();
@@ -28,10 +29,11 @@ int main(int argc, char* argv[]){
             val_error(r, 0, "write error");
             sleep(1);
         }else{
-            int auxSize = 10000;
+            int auxSize = 50000;
             char* msg = createMessage(auxSize);
             begin = clock();
             for(int k = 0;k < size; k += auxSize){
+                printf("Envio del paquete %i\n" , k/auxSize),
                 r = write (descr, msg, auxSize);
                 val_error(r, 0, "write error");
                 sleep(1);
@@ -48,8 +50,8 @@ int main(int argc, char* argv[]){
         val_error(r, 0, "read error");
         end = clock();
         time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+        close(descr2);
     }
     showResult("tuberias no emparentadas", size, time_spent/iterations);
     close(descr);
-    close(descr2);
 }

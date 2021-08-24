@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
             r = read (descr, buf, size);
             val_error(r, 0, "read error");
         }else{
-            int auxSize = 50000;
+            int auxSize = 10000;
             char buf[auxSize];
             for(long int k = 0; k < size; k += auxSize){
                 r = read (descr, buf, auxSize);
@@ -39,7 +39,10 @@ int main(int argc, char* argv[]){
         unlink ("tuberia2");
         do{
             descr2 = open ("tuberia2", O_WRONLY);
-            if (descr2 == -1) sleep (1);
+            if (descr2 == -1){
+                close(descr2);
+                //sleep (1);
+            } 
         }while (descr2 == -1);
         r = write (descr2, &a, sizeof(char));
         val_error(r, 0, "write error");

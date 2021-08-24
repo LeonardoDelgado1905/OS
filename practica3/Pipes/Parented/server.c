@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
                 r = read(pipefd[0], buf, size);
                 end = clock();
                 if(r != size){  
-                    perror("error reading pipe");
+                    //perror("error reading pipe");
                 }
                 buf[r] = 0;
                 time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]){
                 for(int k = 0; k < size; k += auxSize){
                     r = read(pipefd[0], buf, auxSize);
                     if(r != auxSize){  
-                        perror("error reading pipe");
+                        //perror("error reading pipe");
                     }
                     buf[r] = 0;
                 }

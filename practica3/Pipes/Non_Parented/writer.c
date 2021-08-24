@@ -27,16 +27,16 @@ int main(int argc, char* argv[]){
             begin = clock();
             r = write (descr, msg, size);
             val_error(r, 0, "write error");
-            sleep(1);
+            //sleep(1);
         }else{
-            int auxSize = 50000;
+            int auxSize = 10000;
             char* msg = createMessage(auxSize);
             begin = clock();
             for(long int k = 0;k < size; k += auxSize){
                 r = write (descr, msg, auxSize);
                 //printf("Envio del paquete %li\n" , k/auxSize);
                 val_error(r, 0, "write error");
-                sleep(1);
+                //sleep(1);
             }
         }
 

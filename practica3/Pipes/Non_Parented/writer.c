@@ -15,6 +15,7 @@ int main(int argc, char* argv[]){
     double time_spent = 0.0;
     char conf;
 
+    unlink("tuberia");
     do{
         descr = open ("tuberia", O_WRONLY);
         if (descr == -1) sleep (1);
@@ -28,15 +29,18 @@ int main(int argc, char* argv[]){
             val_error(r, 0, "write error");
             sleep(1);
         }else{
-            int auxSize = 10000;
+            int auxSize = 50000;
             char* msg = createMessage(auxSize);
             begin = clock();
-            for(int k = 0;k < size; k += auxSize){
+            for(long int k = 0;k < size; k += auxSize){
                 r = write (descr, msg, auxSize);
+                //printf("Envio del paquete %li\n" , k/auxSize);
                 val_error(r, 0, "write error");
                 sleep(1);
             }
         }
+
+        unlink ("tuberia2");
         sleep(1);
         r = mkfifo ("tuberia2", 0);
         val_error(r, -1, "mkfifo error");
@@ -48,8 +52,8 @@ int main(int argc, char* argv[]){
         val_error(r, 0, "read error");
         end = clock();
         time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+        close(descr2);
     }
     showResult("tuberias no emparentadas", size, time_spent/iterations);
     close(descr);
-    close(descr2);
 }

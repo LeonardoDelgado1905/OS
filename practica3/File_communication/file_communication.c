@@ -33,68 +33,47 @@ int main(int argc, char *argv[]){
     clock_t begin, end;
     double time_spent = 0.0;
     FILE *file;
-    int status, pid, r;
-    char *data;
-    remove("./File_communication/message.dat");
-    pid = fork();
-    if(pid == -1){
-        perror("the process couldn't be created.");
-        exit(-1);
-    }
-    for(int i = 0; i < iterations; ++i){
-        if(pid == 0){
-            
-            file = fopen("./File_communication/message.dat","w+");
+    int pid, r;
+    remove("./message.dat");
+    for(int i = 0; i < iterations; ++i){        
+        begin = clock();
+        pid = fork();
+        if(pid == -1){
+            perror("the process couldn't be created.");
+            exit(-1);
+        }
+        if(pid == 0){            
+            file = fopen("./message.dat","w+");
             if(file == NULL){
                 perror("The file couldn't be opened.");
                 exit(-1);
             }
-            //char *mg = createMessage(size);
-            begin = clock();
             r = fwrite(createMessage(size),sizeof(char),size,file);
-            printf("val: %d\n", r);
             if(r == 0){
                 perror("The file couldn't be written.");
-                exit(EXIT_FAILURE);
+                exit(-1);
             }
-            fclose(file);
-            //exit(0);
+            //fclose(file);
+            exit(0);
         }
         else{
             
             long int res = 0;
-            do{
-
-                file = fopen("./File_communication/message.dat","r");
-                if(file == NULL){
-                    //perror("The file couldn't be opened.");
-                    continue;
-                }
+            do{                
+                //FILE *f;
+                file = fopen("./message.dat","r");
+                if(file == NULL){ //Aún no se ha mandado el mensaje
+                    continue;                   
+                }         
                 fseek(file, 0L, SEEK_END);
                 res = ftell(file);
-                printf("LLEGUE YO: %ld\n", res);
-                if(clock() - begin > 200){
-                    break;
-                }
+                fclose(file);
             }while(res < size);
-            
-            /*for(long i = 0; i<size; i++){
-                
-                r = fread(data,sizeof(char),1,file);
-                if(r == 0){
-                    perror("The file couldn't be read.");
-                    exit(EXIT_FAILURE);
-                }
-            }*/
-            fclose(file);
-            end = clock();
-            
-            time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-            
+            end = clock();                    
+            time_spent += (double)(end - begin) / CLOCKS_PER_SEC;            
         }
     }
 
-    //fclose(file);
     if(pid != 0){        
         showResult("Archivos", size, time_spent/iterations);
         fflush(stdout);

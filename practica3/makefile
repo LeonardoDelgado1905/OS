@@ -34,6 +34,7 @@ MessagePassing:
 	./Message_passing/server & ./Message_passing/client 127.0.0.1 100000000 1
 
 SharedMemory:
+	@ echo -------Shared Memory Method
 	@ gcc Share_memory/shmem.c -o Share_memory/schmem.o
 	@ ./Share_memory/schmem.o 1000 100
 	@ ./Share_memory/schmem.o 10000 10
@@ -44,5 +45,13 @@ SharedMemory:
 
 
 Files:
+	@ echo -------Files Method
 	@ gcc File_communication/file_communication.c -o File_communication/file.o
 	@ ./File_communication/file.o 1000 100
+	@ ./File_communication/file.o 10000 10
+	@ ./File_communication/file.o 100000 10
+	@ ./File_communication/file.o 1000000 10
+	@ ./File_communication/file.o 10000000 10
+	@ ./File_communication/file.o 100000000 5
+
+Compare: SharedMemory Files

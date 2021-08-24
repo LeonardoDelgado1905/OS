@@ -23,7 +23,6 @@ int main(int argc, char* argv[]){
     val_error(descr, 0, "open error");
  
     for (i=0; i<iterations; i++){
-        printf("iteration reader: %i\n", i);
         if(size<64000){
             char buf[size];
             r = read (descr, buf, size);
@@ -31,9 +30,9 @@ int main(int argc, char* argv[]){
         }else{
             int auxSize = 50000;
             char buf[auxSize];
-            for(int k = 0; k < size; k += auxSize){
-                printf("Recibido del paquete %i\n" , k/auxSize),
+            for(long int k = 0; k < size; k += auxSize){
                 r = read (descr, buf, auxSize);
+                //printf("Recibido del paquete %li\n" , k/auxSize);
                 val_error(r, 0, "read error");
             }
         }  

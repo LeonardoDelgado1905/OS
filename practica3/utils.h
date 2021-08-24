@@ -27,7 +27,7 @@ void showResult(char* method, long int size, double time){
             printf("El tiempo de envio de 100MB por medio de %s es de: %f\n", method, time);
             break;
         default:
-            printf("Algo salió mal");
+            printf("Algo salió mal\n");
     }
 }
 

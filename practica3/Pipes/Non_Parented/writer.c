@@ -15,13 +15,13 @@ int main(int argc, char* argv[]){
     double time_spent = 0.0;
     char conf;
 
+    unlink("tuberia");
     do{
         descr = open ("tuberia", O_WRONLY);
         if (descr == -1) sleep (1);
     }while (descr == -1);
 
     for (i=0; i<iterations; i++){
-        printf("iteration writer: %i\n", i);
         if(size<64000){
             char* msg = createMessage(size);
             begin = clock();
@@ -32,13 +32,15 @@ int main(int argc, char* argv[]){
             int auxSize = 50000;
             char* msg = createMessage(auxSize);
             begin = clock();
-            for(int k = 0;k < size; k += auxSize){
-                printf("Envio del paquete %i\n" , k/auxSize),
+            for(long int k = 0;k < size; k += auxSize){
                 r = write (descr, msg, auxSize);
+                //printf("Envio del paquete %li\n" , k/auxSize);
                 val_error(r, 0, "write error");
                 sleep(1);
             }
         }
+
+        unlink ("tuberia2");
         sleep(1);
         r = mkfifo ("tuberia2", 0);
         val_error(r, -1, "mkfifo error");

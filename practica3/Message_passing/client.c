@@ -33,13 +33,10 @@ int main(int argc, char *argv[])
     client.sin_port = htons(PORT);
 
     inet_aton(argv[1], &client.sin_addr);
+    do{
+        r = connect(clientfd, (struct sockaddr *)&client, (socklen_t)sizeof(struct sockaddr));
     
-    r = connect(clientfd, (struct sockaddr *)&client, (socklen_t)sizeof(struct sockaddr));
-    if(r < 0){
-        perror("\n-->Error en connect(): ");
-        exit(-1);
-    }
-    
+    }while(r == -1);
 
     char* received[8];
 
